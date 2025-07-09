@@ -21,9 +21,19 @@ class AssignVisualizer(Trainer):
 
     def __init__(self, exp: Exp, args):
         super().__init__(exp, args)
+        self.model = self.exp.get_model()
         self.batch_cnt = 0
         self.vis_dir = os.path.join(self.file_name, "vis")
         os.makedirs(self.vis_dir, exist_ok=True)
+
+         # 加载指定的权重文件
+        ckpt_path = "/media/sata4/hzh/bccd/Bloodcell_test_project_v2/YOLOX/YOLOX_outputs/yolox_base_bccd_nano/best_ckpt.pth"
+        if os.path.isfile(ckpt_path):
+            ckpt = torch.load(ckpt_path, map_location="cpu",weights_only=False)
+            self.model.load_state_dict(ckpt["model"])
+            print(f"Loaded checkpoint from {ckpt_path}")
+        else:
+            print(f"Checkpoint not found at {ckpt_path}")
 
     def train_one_iter(self):
         iter_start_time = time.time()

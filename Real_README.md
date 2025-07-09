@@ -134,5 +134,21 @@ def evaluate(
 
 ### 4.可视化
 ```bash
-$ python3 tools/visualize_assign.py -f exps/example/yolox_base_bccd_nano.py -c YOLOX_outputs/yolox_bccd_nano_test/best_ckpt.pth -d 1 -b 8 --max-batch 1
+$ CUDA_VISIBLE_DEVICES=1 python3 tools/visualize_assign.py -f exps/example/yolox_base_bccd_nano.py -d 1 -b 8 --max-batch 1
+```
+
+### 5.Github备份指令
+```bash
+$ # 1. 确保你在项目根目录
+cd /media/sata4/hzh/bccd/Bloodcell_test_project_v2  # 替换成你的实际路径
+# 2. 查看当前 Git 状态
+git status
+# 3. 添加所有修改（也可以单独添加文件）
+git add .
+# 4. 提交修改
+git commit -m "Update: 描述" 
+# 5. 设置远程地址为你自己的 GitHub 仓库（如果之前未设置或需要更换）
+git remote set-url origin git@github.com:SarahStaceywang/Bloodcell_test_project_v2_backup.git
+# 6. 推送到远程 GitHub 仓库
+GIT_SSH_COMMAND='ssh -i /home/cdp/media/sata4/hzh/bccd/.ssh/ssd' git push origin main
 ```
