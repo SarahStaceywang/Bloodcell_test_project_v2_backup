@@ -7,6 +7,7 @@ import time
 from loguru import logger
 
 import torch
+import torch.serialization
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 
@@ -316,7 +317,12 @@ class Trainer:
             else:
                 ckpt_file = self.args.ckpt
 
-            ckpt = torch.load(ckpt_file, map_location=self.device)
+            ###
+            
+            torch.serialization.add_safe_globals(['numpy._core.multiarray.scalar'])
+            ###
+
+            ckpt = torch.load(ckpt_file, map_location=self.device, weights_only=False)
             # resume the model/optimizer state dict
             model.load_state_dict(ckpt["model"])
             self.optimizer.load_state_dict(ckpt["optimizer"])

@@ -114,7 +114,16 @@ python tools/eval.py -f exps/example/yolox_base_bccd_nano.py -c YOLOX_outputs/yo
 
 #混淆矩阵
 python eval_try.py -f exps/example/yolox_base_bccd_nano.py -c YOLOX_outputs/yolox_base_bccd_nano/best_ckpt.pth -b 8 -d 1 --conf 0.001 --fp16
+
+python eval_try.py -f exps/example/yolox_base_bccd_s.py -c YOLOX_outputs/yolox_base_bccd_s/best_ckpt.pth -b 8 -d 1 --conf 0.001 --fp16
 ```
+2025/7/1 修改了eval_try.py,原代码在/YOLOX/eval_try_copy.py中
+remark.
+画混淆矩阵时需要把coco_evaluator.py中的
+def evaluate(
+        self, model, distributed=False, half=False, trt_file=None,
+        decoder=None, test_size=None, return_outputs=False #改成True画混淆矩阵
+    )
 
 -n：模型名称。
 -c：模型权重文件路径。
@@ -123,14 +132,7 @@ python eval_try.py -f exps/example/yolox_base_bccd_nano.py -c YOLOX_outputs/yolo
 --conf：置信度阈值。
 --fp16：使用混合精度
 
-remark.
-画混淆矩阵时需要把coco_evaluator.py中的
-def evaluate(
-        self, model, distributed=False, half=False, trt_file=None,
-        decoder=None, test_size=None, return_outputs=False #改成True画混淆矩阵
-    )
-
 ### 4.可视化
 ```bash
-$ python3 tools/visualize_assign.py -f exps/example/yolox_base_bccd_s.py -d 2 -b 16 --max-batch 2
+$ python3 tools/visualize_assign.py -f exps/example/yolox_base_bccd_nano.py -c YOLOX_outputs/yolox_bccd_nano_test/best_ckpt.pth -d 1 -b 8 --max-batch 1
 ```

@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from loguru import logger
-from collections import defaultdict
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -44,58 +43,32 @@ def bbox_iou(box1, box2):
     iou = inter_area / (box1_area + box2_area - inter_area)
     return iou
 
-def generate_confusion_matrix(output_data, dataset, save_path="confusion_matrix/yolox_s/confusion_matrix_nano_0.3_test2(0.1).png", iou_threshold=0.3):
+def generate_confusion_matrix(output_data, dataset, save_path="confusion_matrix.png", iou_threshold=0.5):
     y_true = []
     y_pred = []
 
     coco = dataset.coco
     imgid_to_anns = coco.imgToAnns
 
-    # 获取类别id映射（如COCO类别id不是0,1,2,3...）
-    labels = sorted([cat["id"] for cat in coco.cats.values()])
-    id2idx = {cat_id: idx for idx, cat_id in enumerate(labels)}
-
     for img_id, pred in output_data.items():
         pred_boxes = pred["bboxes"]  # 预测框，格式为 [[x1, y1, x2, y2], ...]
         pred_classes = pred["categories"]  # 预测类别
-        # 如果有scores字段，过滤低置信度框
-        if "scores" in pred:
-            pred_scores = pred["scores"]
-            keep = [i for i, s in enumerate(pred_scores) if s > 0.3]
-            pred_boxes = [pred_boxes[i] for i in keep]
-            pred_classes = [pred_classes[i] for i in keep]
-
         gt_anns = imgid_to_anns[img_id]  # 真实标注
         gt_boxes = [ann["bbox"] for ann in gt_anns]  # 真实框，格式为 [x, y, w, h]
         gt_classes = [ann["category_id"] for ann in gt_anns]  # 真实类别
 
         # 将 COCO 格式的 bbox 转换为 [x1, y1, x2, y2]
         gt_boxes = [[x, y, x + w, y + h] for x, y, w, h in gt_boxes]
-        # pred_boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in pred_boxes]
-
-         # 检查预测类别是否需要映射
-        # 如果模型输出类别是0,1,2,3...，而COCO id不是，则需要映射
-        if min(pred_classes, default=0) == 0 and min(labels) != 0:
-            pred_classes = [labels[c] for c in pred_classes]
-        
+        #pred_boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in pred_boxes]
         # IoU 匹配
         matched_gt = set()
-        matched_pred = set()
-        
-        if len(pred_boxes) > 0 and (pred_boxes[0][2] < pred_boxes[0][0] or pred_boxes[0][3] < pred_boxes[0][1]):
-            pred_boxes = [[x, y, x + w, y + h] for x, y, w, h in pred_boxes]
-
-        # 调试输出
-        # print(f"img_id: {img_id}, pred_boxes: {pred_boxes}, pred_classes: {pred_classes}, gt_boxes: {gt_boxes}, gt_classes: {gt_classes}")
-
-
-        for pred_idx, (pred_box, pred_class) in enumerate(zip(pred_boxes, pred_classes)):
+        for pred_box, pred_class in zip(pred_boxes, pred_classes):
             best_iou = 0
             best_gt_idx = -1
             for gt_idx, (gt_box, gt_class) in enumerate(zip(gt_boxes, gt_classes)):
                 if gt_idx in matched_gt:
-                    continue
-                iou = bbox_iou(pred_box, gt_box)
+                    continue  # 跳过已匹配的真实框
+                iou = bbox_iou(pred_box, gt_box)  # 计算 IoU
                 if iou > best_iou:
                     best_iou = iou
                     best_gt_idx = gt_idx
@@ -104,24 +77,16 @@ def generate_confusion_matrix(output_data, dataset, save_path="confusion_matrix/
                 y_true.append(gt_classes[best_gt_idx])
                 y_pred.append(pred_class)
                 matched_gt.add(best_gt_idx)
-                matched_pred.add(pred_idx)
 
-        # 漏检（GT 没有被任何预测框匹配）
+        # 对未匹配的真实框，视为漏检
         for gt_idx, gt_class in enumerate(gt_classes):
             if gt_idx not in matched_gt:
                 y_true.append(gt_class)
-                y_pred.append(-1)  # -1 表示漏检
+                y_pred.append(-1)  # -1 表示未检测到
 
-        # 错检（预测框没有任何 GT 匹配）
-        for pred_idx, pred_class in enumerate(pred_classes):
-            if pred_idx not in matched_pred:
-                y_true.append(-1)
-                y_pred.append(pred_class)
-
-    # labels = sorted([cat["id"] for cat in coco.cats.values()])
+    labels = sorted([cat["id"] for cat in coco.cats.values()])
     class_names = [coco.cats[l]["name"] for l in labels]
     cm = confusion_matrix(y_true, y_pred, labels=labels + [-1])  # 包含漏检类别
-    cm_normalized = cm.astype('float') / cm.sum(axis=1, keepdims=True)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names + ["missed"])
 
     fig, ax = plt.subplots(figsize=(12, 12))

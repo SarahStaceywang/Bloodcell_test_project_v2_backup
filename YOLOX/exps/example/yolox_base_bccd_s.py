@@ -21,9 +21,9 @@ class Exp(BaseExp):
         # detect classes number of model
         self.num_classes = 3
         # factor of model depth
-        self.depth = 0.33
+        self.depth = 1.0
         # factor of model width
-        self.width = 0.25
+        self.width = 1.0
         # activation name. For example, if using "relu", then "silu" will be replaced to "relu".
         self.act = "silu"
 
@@ -31,12 +31,12 @@ class Exp(BaseExp):
         # set worker to 4 for shorter dataloader init time
         # If your training process cost many memory, reduce this value.
         self.data_num_workers = 4
-        self.input_size = (640, 640)  # (height, width)
+        self.input_size = (896, 896)  # (height, width)
         # Actual multiscale ranges: [640 - 5 * 32, 640 + 5 * 32].
         # To disable multiscale training, set the value to 0.
         self.multiscale_range = 5
         # You can uncomment this line to specify a multiscale range
-        # self.random_size = (14, 26)
+        self.random_size = (14, 26)
         # dir of dataset images, if data_dir is None, this project will use `datasets` dir
         self.data_dir = "datasets/BCCD"
         # name of annotation file for training
@@ -70,7 +70,7 @@ class Exp(BaseExp):
         # epoch number used for warmup
         self.warmup_epochs = 5
         # max training epoch
-        self.max_epoch = 400
+        self.max_epoch = 120
         # 之前是300
         # minimum learning rate during warmup
         self.warmup_lr = 0
@@ -102,12 +102,12 @@ class Exp(BaseExp):
 
         # -----------------  testing config ------------------ #
         # output image size during evaluation/test
-        self.test_size = (640, 640)
+        self.test_size = (896,896)
         # confidence threshold during evaluation/test,
         # boxes whose scores are less than test_conf will be filtered
-        self.test_conf = 0.01
+        self.test_conf = 0.01 #原来为0.01 2_为0.1
         # nms threshold
-        self.nmsthre = 0.65
+        self.nmsthre = 0.65  #原来为0.65 2_为0.5
 
     def get_model(self):
         from yolox.models import YOLOX, YOLOPAFPN, YOLOXHead

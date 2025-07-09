@@ -26,12 +26,13 @@ class Exp(BaseExp):
         self.width = 0.25
         # activation name. For example, if using "relu", then "silu" will be replaced to "relu".
         self.act = "silu"
+        #新增 self.cls_weight = [0.3,1.5,2.0]
 
         # ---------------- dataloader config ---------------- #
         # set worker to 4 for shorter dataloader init time
         # If your training process cost many memory, reduce this value.
         self.data_num_workers = 4
-        self.input_size = (640, 640)  # (height, width)
+        self.input_size = (896,896)  # (height, width)原来为 (640,640)
         # Actual multiscale ranges: [640 - 5 * 32, 640 + 5 * 32].
         # To disable multiscale training, set the value to 0.
         self.multiscale_range = 5
@@ -68,14 +69,14 @@ class Exp(BaseExp):
 
         # --------------  training config --------------------- #
         # epoch number used for warmup
-        self.warmup_epochs = 5
+        self.warmup_epochs = 5  #原来为 5
         # max training epoch
-        self.max_epoch = 300
+        self.max_epoch = 200
         # minimum learning rate during warmup
         self.warmup_lr = 0
-        self.min_lr_ratio = 0.05
+        self.min_lr_ratio = 0.05  #原来为0.05
         # learning rate for one image. During training, lr will multiply batchsize.
-        self.basic_lr_per_img = 0.01 / 64.0
+        self.basic_lr_per_img = 0.01 / 64.0 #原来为 0.01 / 64.0
         # name of LRScheduler
         self.scheduler = "yoloxwarmcos"
         # last #epoch to close augmention like mosaic
@@ -101,10 +102,10 @@ class Exp(BaseExp):
 
         # -----------------  testing config ------------------ #
         # output image size during evaluation/test
-        self.test_size = (640, 640)
+        self.test_size = (896,896) # (height, width)原来为 (640,640)
         # confidence threshold during evaluation/test,
         # boxes whose scores are less than test_conf will be filtered
-        self.test_conf = 0.01
+        self.test_conf = 0.1  #原来为0.01
         # nms threshold
         self.nmsthre = 0.65
 
