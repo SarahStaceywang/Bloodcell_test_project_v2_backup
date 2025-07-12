@@ -134,8 +134,15 @@ def evaluate(
 
 ### 4.可视化
 ```bash
-$ CUDA_VISIBLE_DEVICES=1 python3 tools/visualize_assign.py -f exps/example/yolox_base_bccd_nano.py -d 1 -b 8 --max-batch 1
+$ CUDA_VISIBLE_DEVICES=1 python3 tools/visualize_assign_test.py -f exps/example/yolox_base_bccd_nano.py -d 1 -b 8 --max-batch 1
 ```
+python tools/visualize_assign_test.py -f exps/example/yolox_voc/yolox_nano_bccd.py -n yolox_nano_bccd --max-vis 20
+python tools/visualize_assign_test.py -f exps/example/yolox_voc/yolox_nano_bccd.py -n yolox_nano_bccd --ckpt YOLOX_outputs/yolox_nano_bccd/best_ckpt.pth --max-vis 20
+CUDA_VISIBLE_DEVICES=1 python3 tools/visualize_assign.py \
+  -f exps/example/yolox_base_bccd_nano.py \
+  -d 1 -b 8 --max-vis 1
+
+  CUDA_VISIBLE_DEVICES=0 python3 tools/visualize_assign_test.py -f exps/example/yolox_base_bccd_nano.py -d 1 -b 1 --ckpt /media/sata4/hzh/bccd/Bloodcell_test_project_v2/YOLOX/YOLOX_outputs/yolox_base_bccd_nano/best_ckpt.pth --max-vis 10
 
 ### 5.Github备份指令
 ```bash

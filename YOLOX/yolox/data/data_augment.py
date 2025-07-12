@@ -241,3 +241,49 @@ class ValTransform:
             img -= np.array([0.485, 0.456, 0.406]).reshape(3, 1, 1)
             img /= np.array([0.229, 0.224, 0.225]).reshape(3, 1, 1)
         return img, np.zeros((1, 5))
+
+    # def __call__(self, img, res, input_size):
+    #     """
+    #     img: 原始图像(cv2 读取的 BGR)
+    #     res: 忽略（通常为 annotation,但 val 阶段不使用）
+    #     input_size: 模型的输入大小 (h, w)
+    #     """
+    #     # 1. Resize + Padding 到 input_size（通常是 letterbox 模式）
+    #     img, _ = self.preproc(img, input_size, self.swap)
+
+    #     # 2. 如果使用 legacy preprocessing（ImageNet 样式归一化）
+    #     if self.legacy:
+    #         img = img[::-1, :, :].copy()  # BGR -> RGB
+    #         img = img / 255.0
+    #         img -= np.array([0.485, 0.456, 0.406]).reshape(3, 1, 1)
+    #         img /= np.array([0.229, 0.224, 0.225]).reshape(3, 1, 1)
+
+    #     # 3. 返回图像 tensor（CHW 格式）和 dummy label
+    #     return img, np.zeros((1, 5))
+
+    # def preproc(self, img, input_size, swap):
+    #     """
+    #     对图像进行缩放 + padding(letterbox)+ 转换为 tensor 格式(CHW)
+
+    #     返回值：
+    #         - img: shape 为 (3, input_h, input_w),float32
+    #         - r: 缩放比例(float)
+    #     """
+    #     h, w = img.shape[:2]
+    #     input_h, input_w = input_size
+    #     r = min(input_w / w, input_h / h)
+
+    #     # 缩放图像
+    #     resized_w = int(w * r)
+    #     resized_h = int(h * r)
+    #     resized_img = cv2.resize(img, (resized_w, resized_h))
+
+    #     # 创建空白图像并填充（letterbox）
+    #     padded_img = np.full((input_h, input_w, 3), 114, dtype=np.uint8)
+    #     padded_img[:resized_h, :resized_w] = resized_img
+
+    #     # 交换通道顺序（默认 BGR -> CHW）
+    #     padded_img = padded_img.transpose(swap)
+    #     padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
+
+    #     return padded_img, r
